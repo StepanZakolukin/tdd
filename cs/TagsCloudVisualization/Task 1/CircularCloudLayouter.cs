@@ -1,18 +1,65 @@
 ﻿using System.Drawing;
 
+
 namespace TagsCloudVisualization;
 
-class CircularCloudLayouter
+public class CircularCloudLayouter
 {
+    public int DistanceBetweenTurns { get; private set; }
+    public int InitialRadiusOfTheSpiral { get; private set; }
+    public double AngleOfRotationInRadians { get; private set; }
+    public double AngleChangeStep { get; private set; }
+
+    readonly LinkedList<Rectangle> cloudOfRectangles;
+
     public readonly Point Center;
 
     public CircularCloudLayouter(Point center)
     {
         Center = center;
+        AngleChangeStep = 0.017;
+        cloudOfRectangles = [];
+        DistanceBetweenTurns = 30;
+        InitialRadiusOfTheSpiral = 30;
     }
 
     public Rectangle PutNextRectangle(Size rectangleSize)
     {
-        throw new NotImplementedException();
+        if (cloudOfRectangles.Count == 0)
+            InitialRadiusOfTheSpiral = Math.Min(rectangleSize.Width, rectangleSize.Height) / 2;
+
+        DistanceBetweenTurns = Math.Min(DistanceBetweenTurns,
+                Math.Min(rectangleSize.Width, rectangleSize.Height) / 2);
+
+        return chooseTheLocationForTheRectangle(rectangleSize);
+    }
+
+    Rectangle chooseTheLocationForTheRectangle(Size rectangleSize)
+    {
+        var currentPoint = GetANewPoint();
+        var rectangle = getANewRectangle(currentPoint, rectangleSize);
+
+        while (cloudOfRectangles.Any(rect => rect.IntersectsWith(rectangle)))
+        {
+            AngleOfRotationInRadians += AngleChangeStep;
+            currentPoint = GetANewPoint();
+            rectangle = getANewRectangle(currentPoint, rectangleSize);
+        }
+
+        cloudOfRectangles.AddFirst(rectangle);
+        return rectangle;
+    }
+
+    Rectangle getANewRectangle(Point centerPoint, Size rectangleSize) =>
+        new(new(centerPoint.X - rectangleSize.Width / 2,
+            centerPoint.Y - rectangleSize.Height / 2), rectangleSize);
+
+    Point GetANewPoint()
+    {
+        var coefficient = InitialRadiusOfTheSpiral + AngleOfRotationInRadians * DistanceBetweenTurns;
+        var x = coefficient * Math.Cos(AngleOfRotationInRadians) + Center.X;
+        var y = coefficient * Math.Sin(AngleOfRotationInRadians) + Center.Y;
+
+        return new((int)x, (int)y);
     }
 }
