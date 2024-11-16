@@ -31,30 +31,30 @@ public class CircularCloudLayouter
         DistanceBetweenTurns = Math.Min(DistanceBetweenTurns,
                 Math.Min(rectangleSize.Width, rectangleSize.Height) / 2);
 
-        return chooseTheLocationForTheRectangle(rectangleSize);
+        return ChooseTheLocationForTheRectangle(rectangleSize);
     }
 
-    Rectangle chooseTheLocationForTheRectangle(Size rectangleSize)
+    private Rectangle ChooseTheLocationForTheRectangle(Size rectangleSize)
     {
         var currentPoint = GetANewPoint();
-        var rectangle = getANewRectangle(currentPoint, rectangleSize);
+        var rectangle = GetANewRectangle(currentPoint, rectangleSize);
 
         while (cloudOfRectangles.Any(rect => rect.IntersectsWith(rectangle)))
         {
             AngleOfRotationInRadians += AngleChangeStep;
             currentPoint = GetANewPoint();
-            rectangle = getANewRectangle(currentPoint, rectangleSize);
+            rectangle = GetANewRectangle(currentPoint, rectangleSize);
         }
 
         cloudOfRectangles.AddFirst(rectangle);
         return rectangle;
     }
 
-    Rectangle getANewRectangle(Point centerPoint, Size rectangleSize) =>
+    private Rectangle GetANewRectangle(Point centerPoint, Size rectangleSize) =>
         new(new(centerPoint.X - rectangleSize.Width / 2,
             centerPoint.Y - rectangleSize.Height / 2), rectangleSize);
 
-    Point GetANewPoint()
+    private Point GetANewPoint()
     {
         var coefficient = InitialRadiusOfTheSpiral + AngleOfRotationInRadians * DistanceBetweenTurns;
         var x = coefficient * Math.Cos(AngleOfRotationInRadians) + Center.X;
