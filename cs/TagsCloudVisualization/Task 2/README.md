@@ -1,12 +1,1 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TagsCloudVisualization.Task_2
-{
-    class README
-    {
-    }
-}
+﻿![CentralСloud](./directory_1/directory_2/.../directory_n/CentralСloud.png)
