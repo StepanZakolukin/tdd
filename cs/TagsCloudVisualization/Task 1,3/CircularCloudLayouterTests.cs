@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using System.Drawing;
+using TagsCloudVisualization.Task_2;
 
 
 namespace TagsCloudVisualization;
@@ -9,6 +11,9 @@ namespace TagsCloudVisualization;
 [TestFixture]
 public class CircularCloudLayouterTests
 {
+    private readonly static List<Rectangle> listRectangles = [];
+    private readonly static CircularCloudLayouter cloudLayouter;
+
     [Test]
     public void CircularCloudLayouter_CorrectInitialization_NoExceptions()
     {
@@ -41,15 +46,14 @@ public class CircularCloudLayouterTests
     [Test]
     public void PutNextRectangle_RandomSizes_ShouldNotIntersect()
     {
-        var cloud = new CircularCloudLayouter(new Point(960, 540));
-        var listRectangles = new List<Rectangle>();
+        var cloudLayouter = new CircularCloudLayouter(new Point(960, 540));
         var random = new Random();
         
         for (int i = 0; i < 100; i++)
         {
             var width = random.Next(30, 200);
 
-            var rectangle = cloud.PutNextRectangle(new(width, random.Next(width / 6, width / 3)));
+            var rectangle = cloudLayouter.PutNextRectangle(new(width, random.Next(width / 6, width / 3)));
 
             listRectangles.Any(rect => rect.IntersectsWith(rectangle))
                 .Should()
@@ -57,5 +61,23 @@ public class CircularCloudLayouterTests
 
             listRectangles.Add(rectangle);
         }
+    }
+
+    [TearDown]
+    public void CreateReportInCaseOfAnError()
+    {
+        if (TestContext.CurrentContext.Result.Outcome == ResultState.Failure)
+        {
+            var colors = new[] { Color.Red, Color.Green, Color.Brown, Color.Yellow, Color.Blue };
+            var path = "../../../../TagsCloudVisualization/TestErrorReports/сloud.png";
+            var visual = new VisualizationCloudLayout(1920, 1080, Color.White, colors);
+
+            visual.CreateAnImage(cloudLayouter, 175, 30, 100, 5, 25, listRectangles)
+                .Save(path);
+
+            Console.WriteLine($"Tag cloud visualization saved to file {Path.GetFullPath(path)}");
+        }
+
+        listRectangles.Clear();
     }
 }

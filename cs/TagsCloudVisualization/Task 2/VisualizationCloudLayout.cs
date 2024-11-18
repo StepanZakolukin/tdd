@@ -17,16 +17,17 @@ public class VisualizationCloudLayout
         RectanglePalette = rectanglePalette.ToArray();
     }
 
-    public Bitmap CreateAnImage(Point center, int amountRectangles,
+    public Bitmap CreateAnImage(CircularCloudLayouter cloudLayouter, int amountRectangles,
         int startWidthRectangles, int endWidthRectangles,
-        int startHeightRectangles, int endHeightRectangles)
+        int startHeightRectangles, int endHeightRectangles, IEnumerable<Rectangle> rectangles = null)
     {
         var image = new Bitmap(Width, Height);
-        var rectangles = CloudLayout.GenerateCloudLayout(
+
+        rectangles = rectangles ?? CloudLayout.GenerateCloudLayout(
             amountRectangles,
             startWidthRectangles, endWidthRectangles,
             startHeightRectangles, endHeightRectangles,
-            new CircularCloudLayouter(center));
+            cloudLayouter);
         var graphics = Graphics.FromImage(image);
         
         DrawCloudLayout(graphics, rectangles);
