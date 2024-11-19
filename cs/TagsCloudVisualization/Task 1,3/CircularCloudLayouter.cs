@@ -5,58 +5,57 @@ namespace TagsCloudVisualization;
 
 public class CircularCloudLayouter
 {
-    public int DistanceBetweenTurns { get; private set; }
-    public int InitialRadiusOfTheSpiral { get; private set; }
-    public double AngleOfRotationInRadians { get; private set; }
-    public double AngleChangeStep { get; private set; }
+    private const double AngleChangeStep = Math.PI / 180;
+    private int DistanceBetweenTurns { get; set; }
+    private int InitialRadiusOfSpiral { get; set; }
+    private double AngleOfRotationInRadians { get; set; }
 
-    readonly LinkedList<Rectangle> cloudOfRectangles;
+    private readonly LinkedList<Rectangle> cloudOfRectangles;
 
     public readonly Point Center;
 
     public CircularCloudLayouter(Point center)
     {
         Center = center;
-        AngleChangeStep = 0.017;
         cloudOfRectangles = [];
         DistanceBetweenTurns = 30;
-        InitialRadiusOfTheSpiral = 30;
     }
 
     public Rectangle PutNextRectangle(Size rectangleSize)
     {
-        if (cloudOfRectangles.Count == 0)
-            InitialRadiusOfTheSpiral = Math.Min(rectangleSize.Width, rectangleSize.Height) / 2;
+        var halfOfMinSide = Math.Min(rectangleSize.Width, rectangleSize.Height) / 2;
+        DistanceBetweenTurns = Math.Min(DistanceBetweenTurns, halfOfMinSide);
 
-        DistanceBetweenTurns = Math.Min(DistanceBetweenTurns,
-                Math.Min(rectangleSize.Width, rectangleSize.Height) / 2);
+        if (cloudOfRectangles.Count == 0) InitialRadiusOfSpiral = halfOfMinSide;
 
-        return ChooseTheLocationForTheRectangle(rectangleSize);
+        var rectangle = ChooseLocationForRectangle(rectangleSize);
+        cloudOfRectangles.AddFirst(rectangle);
+
+        return rectangle;
     }
 
-    private Rectangle ChooseTheLocationForTheRectangle(Size rectangleSize)
+    private Rectangle ChooseLocationForRectangle(Size rectangleSize)
     {
-        var currentPoint = GetANewPoint();
-        var rectangle = GetANewRectangle(currentPoint, rectangleSize);
+        var currentPoint = GetNewPoint();
+        var rectangle = GetNewRectangle(currentPoint, rectangleSize);
 
         while (cloudOfRectangles.Any(rect => rect.IntersectsWith(rectangle)))
         {
             AngleOfRotationInRadians += AngleChangeStep;
-            currentPoint = GetANewPoint();
-            rectangle = GetANewRectangle(currentPoint, rectangleSize);
+            currentPoint = GetNewPoint();
+            rectangle = GetNewRectangle(currentPoint, rectangleSize);
         }
 
-        cloudOfRectangles.AddFirst(rectangle);
         return rectangle;
     }
 
-    private Rectangle GetANewRectangle(Point centerPoint, Size rectangleSize) =>
+    private Rectangle GetNewRectangle(Point centerPoint, Size rectangleSize) =>
         new(new(centerPoint.X - rectangleSize.Width / 2,
             centerPoint.Y - rectangleSize.Height / 2), rectangleSize);
 
-    private Point GetANewPoint()
+    private Point GetNewPoint()
     {
-        var coefficient = InitialRadiusOfTheSpiral + AngleOfRotationInRadians * DistanceBetweenTurns;
+        var coefficient = InitialRadiusOfSpiral + AngleOfRotationInRadians * DistanceBetweenTurns;
         var x = coefficient * Math.Cos(AngleOfRotationInRadians) + Center.X;
         var y = coefficient * Math.Sin(AngleOfRotationInRadians) + Center.Y;
 

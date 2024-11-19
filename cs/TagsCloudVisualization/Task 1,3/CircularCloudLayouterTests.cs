@@ -11,8 +11,7 @@ namespace TagsCloudVisualization;
 [TestFixture]
 public class CircularCloudLayouterTests
 {
-    private readonly static List<Rectangle> listRectangles = [];
-    private readonly static CircularCloudLayouter cloudLayouter;
+    private readonly List<Rectangle> listRectangles = [];
 
     [Test]
     public void CircularCloudLayouter_CorrectInitialization_NoExceptions()
@@ -25,7 +24,7 @@ public class CircularCloudLayouterTests
     }
 
     [Test]
-    public void PutNextRectangle_RandomSizes_MustBeTheRightSize()
+    public void PutNextRectangle_RandomSizes_MustBeRightSize()
     {
         var cloud = new CircularCloudLayouter(new Point(960, 540));
         var random = new Random();
@@ -72,7 +71,7 @@ public class CircularCloudLayouterTests
             var path = "../../../../TagsCloudVisualization/TestErrorReports/сloud.png";
             var visual = new VisualizationCloudLayout(1920, 1080, Color.White, colors);
 
-            visual.CreateAnImage(cloudLayouter, 175, 30, 100, 5, 25, listRectangles)
+            visual.CreateImage(listRectangles)
                 .Save(path);
 
             Console.WriteLine($"Tag cloud visualization saved to file {Path.GetFullPath(path)}");
